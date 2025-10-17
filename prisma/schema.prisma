@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SymptomCategory {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  details   String    @default("")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  formulas  Formula[]
+  symptoms  Symptom[]
+
+  @@map("symptom_categories")
+}
+
+model Formula {
+  id                 Int              @id @default(autoincrement())
+  name               String           @unique
+  name2              String           @map("name_2")
+  name3              String           @map("name_3")
+  symptomCategoryId  Int              @map("symptom_category_id")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  symptomCategory    SymptomCategory  @relation(fields: [symptomCategoryId], references: [id])
+
+  @@map("formulas")
+}
+
+model Symptom {
+  id                 Int              @id @default(autoincrement())
+  highIndications    Json             @map("high_indications")
+  lowIndications     Json             @map("low_indications")
+  symptomCategoryId  Int              @map("symptom_category_id")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  symptomCategory    SymptomCategory  @relation(fields: [symptomCategoryId], references: [id])
+
+  @@map("symptoms")
+}
