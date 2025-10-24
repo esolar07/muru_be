@@ -31,6 +31,11 @@ model Formula {
   name               String           @unique
   name2              String           @map("name_2")
   name3              String           @map("name_3")
+  name4              String           @default("") @map("name_4")
+  shortDescription   String           @default("") @map("short_description")
+  supports           String           @default("") @map("supports")
+  specialDetails     String           @default("") @map("special_details")
+  extraDetails       String           @default("") @map("extra_details")
   symptomCategoryId  Int              @map("symptom_category_id")
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
@@ -49,4 +54,27 @@ model Symptom {
   symptomCategory    SymptomCategory  @relation(fields: [symptomCategoryId], references: [id])
 
   @@map("symptoms")
+}
+
+model QuizSession {
+  id                Int                @id @default(autoincrement())
+  sessionId         String             @unique @map("session_id")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  selectedSymptoms  SelectedSymptom[]
+
+  @@map("quiz_sessions")
+}
+
+model SelectedSymptom {
+  id                     Int          @id @default(autoincrement())
+  sessionId              String       @map("session_id")
+  categoryId             Int          @map("category_id")
+  selectedHighSymptoms   Json         @map("selected_high_symptoms") // Array of selected high indication strings
+  selectedLowSymptoms    Json         @map("selected_low_symptoms")  // Array of selected low indication strings
+  createdAt              DateTime     @default(now()) @map("created_at")
+  updatedAt              DateTime     @updatedAt @map("updated_at")
+  quizSession            QuizSession  @relation(fields: [sessionId], references: [sessionId])
+
+  @@map("selected_symptoms")
 }
