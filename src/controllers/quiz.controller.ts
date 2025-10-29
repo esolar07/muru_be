@@ -1,15 +1,12 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from '../lib/db';
 import { randomUUID } from 'crypto';
 
-const router = Router();
 
-// POST /api/quiz/submit-symptoms - Store selected symptoms for a session
-router.post('/submit-symptoms', async (req: Request, res: Response) => {
+export const submitSymptoms = async (req: Request, res: Response) => {
   try {
     const { sessionId, symptoms } = req.body;
 
-    // Validation
     if (!symptoms || !Array.isArray(symptoms) || symptoms.length === 0) {
       return res.status(400).json({
         success: false,
@@ -17,7 +14,6 @@ router.post('/submit-symptoms', async (req: Request, res: Response) => {
       });
     }
 
-    // Validate each symptom entry
     for (const symptom of symptoms) {
       if (!symptom.categoryId || typeof symptom.categoryId !== 'number') {
         return res.status(400).json({
@@ -35,7 +31,6 @@ router.post('/submit-symptoms', async (req: Request, res: Response) => {
 
     let finalSessionId = sessionId;
 
-    // If no sessionId provided, create a new session
     if (!finalSessionId) {
       finalSessionId = randomUUID();
       await prisma.quizSession.create({
@@ -44,7 +39,6 @@ router.post('/submit-symptoms', async (req: Request, res: Response) => {
         },
       });
     } else {
-      // Check if session exists, if not create it
       const existingSession = await prisma.quizSession.findUnique({
         where: { sessionId: finalSessionId },
       });
@@ -58,7 +52,6 @@ router.post('/submit-symptoms', async (req: Request, res: Response) => {
       }
     }
 
-    // Store selected symptoms
     const createdSymptoms = await Promise.all(
       symptoms.map((symptom: {
         categoryId: number;
@@ -91,10 +84,10 @@ router.post('/submit-symptoms', async (req: Request, res: Response) => {
       error: 'Failed to store selected symptoms',
     });
   }
-});
+};
 
-// GET /api/quiz/session/:sessionId - Retrieve a quiz session with all selected symptoms
-router.get('/session/:sessionId', async (req: Request, res: Response) => {
+
+export const getSession = async (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params;
 
@@ -127,6 +120,4 @@ router.get('/session/:sessionId', async (req: Request, res: Response) => {
       error: 'Failed to fetch quiz session',
     });
   }
-});
-
-export default router;
+};

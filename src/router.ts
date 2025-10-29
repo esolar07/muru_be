@@ -1,18 +1,14 @@
 import { Router } from 'express';
-import categoriesRouter from './routes/categories';
-import symptomsRouter from './routes/symptoms';
-import quizRouter from './routes/quiz';
+import routes from './routes';
 
 const router = Router();
 
 // Health check endpoint
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Muru API is running' });
 });
 
-// API Routes
-router.use('/api/categories', categoriesRouter);
-router.use('/api/symptoms', symptomsRouter);
-router.use('/api/quiz', quizRouter);
+// All API Routes
+router.use(routes);
 
 export default router;
